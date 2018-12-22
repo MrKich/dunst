@@ -108,6 +108,9 @@ void notification_run_script(struct notification *n)
 
         const char *urgency = notification_urgency_to_string(n->urgency);
 
+        char id_str[21];
+        snprintf(id_str, sizeof(id_str), "%d", n->id);
+
         int pid1 = fork();
 
         if (pid1) {
@@ -125,6 +128,7 @@ void notification_run_script(struct notification *n)
                                          body,
                                          icon,
                                          urgency,
+                                         id_str,
                                          (char *)NULL);
                         if (ret != 0) {
                                 LOG_W("Unable to run script: %s", strerror(errno));
