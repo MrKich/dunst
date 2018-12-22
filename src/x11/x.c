@@ -363,16 +363,25 @@ gboolean x_mainloop_fd_dispatch(GSource *source, GSourceFunc callback, gpointer 
 }
 
 /*
+ * Returns current idle time in milliseconds
+ */
+unsigned long x_get_idle_time(void)
+{
+    XScreenSaverQueryInfo(xctx.dpy, DefaultRootWindow(xctx.dpy),
+                          xctx.screensaver_info);
+    return xctx.screensaver_info->idle;
+}
+
+
+/*
  * Check whether the user is currently idle.
  */
 bool x_is_idle(void)
 {
-        XScreenSaverQueryInfo(xctx.dpy, DefaultRootWindow(xctx.dpy),
-                              xctx.screensaver_info);
         if (settings.idle_threshold == 0) {
                 return false;
         }
-        return xctx.screensaver_info->idle > settings.idle_threshold / 1000;
+        return x_get_idle_time() > settings.idle_threshold / 1000;
 }
 
 /* TODO move to x_mainloop_* */

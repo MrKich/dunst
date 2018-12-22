@@ -61,6 +61,7 @@ bool x_win_visible(struct window_x11 *win);
 cairo_t* x_win_get_context(struct window_x11 *win);
 
 /* X misc */
+unsigned long x_get_idle_time(void);
 bool x_is_idle(void);
 void x_setup(void);
 void x_free(void);
