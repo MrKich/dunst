@@ -70,9 +70,23 @@ static gboolean run(void *data)
         dunst_status(S_FULLSCREEN, have_fullscreen_window());
         dunst_status(S_IDLE, x_is_idle());
 
+        GQueue *history = get_history_queue();
+        bool is_idle = status.fullscreen ? false : status.idle;
+        if (is_idle && settings.repopup_on_idle) {
+            while (!g_queue_is_empty(history)) {
+                struct notification *n = g_queue_peek_tail(history);
+                if (x_get_idle_time() > (time_monotonic_now() - n->timestamp) / 1000) {
+                    queues_history_pop_non_sticky();
+                } else {
+                    break;
+                }
+            }
+        }
+
         queues_update(status);
 
         bool active = queues_length_displayed() > 0;
+        bool should_wakeup_for_idle_check = !status.idle && settings.idle_threshold != 0 && settings.repopup_on_idle;
 
         if (active) {
                 // Call draw before showing the window to avoid flickering
@@ -82,9 +96,9 @@ static gboolean run(void *data)
                 x_win_hide(win);
         }
 
-        if (active) {
+        if (active || should_wakeup_for_idle_check) {
                 gint64 now = time_monotonic_now();
-                gint64 sleep = queues_get_next_datachange(now);
+                gint64 sleep = queues_get_next_datachange(now, status);
                 gint64 timeout_at = now + sleep;
 
                 if (sleep >= 0) {

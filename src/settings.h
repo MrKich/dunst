@@ -30,6 +30,7 @@ struct geometry {
 struct settings {
         bool print_notifications;
         bool per_monitor_dpi;
+        bool repopup_on_idle;
         enum markup_mode markup;
         bool stack_duplicates;
         bool hide_duplicate_count;

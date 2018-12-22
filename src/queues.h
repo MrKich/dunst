@@ -106,6 +106,12 @@ void queues_notification_close(struct notification *n, enum reason reason);
 void queues_history_pop(void);
 
 /**
+ * Pushes the latest notification of history to the displayed queue
+ * and removes it from history, but do not change notification timeout field
+ */
+void queues_history_pop_non_sticky(void);
+
+/**
  * Push a single notification to history
  * The given notification has to be removed its queue
  *
@@ -135,6 +141,7 @@ void queues_update(struct dunst_status status);
  * queues changes
  *
  * @param time the current time
+ * @param status the current status of dunst
  *
  * @return the distance to the next event in the queue, which forces
  *         an update visible to the user. This may be:
@@ -142,7 +149,7 @@ void queues_update(struct dunst_status status);
  *             - notification's age second changes
  *             - notification's age threshold is hit
  */
-gint64 queues_get_next_datachange(gint64 time);
+gint64 queues_get_next_datachange(gint64 time, struct dunst_status status);
 
 /**
  * Remove all notifications from all list and free the notifications
@@ -150,6 +157,11 @@ gint64 queues_get_next_datachange(gint64 time);
  * @pre At least one time queues_init() called
  */
 void queues_teardown(void);
+
+/**
+ * Return history queue
+ */
+GQueue* get_history_queue(void);
 
 #endif
 /* vim: set tabstop=8 shiftwidth=8 expandtab textwidth=0: */

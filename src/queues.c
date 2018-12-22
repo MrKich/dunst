@@ -347,6 +347,17 @@ void queues_history_pop(void)
 }
 
 /* see queues.h */
+void queues_history_pop_non_sticky(void)
+{
+        if (g_queue_is_empty(history))
+                return;
+
+        struct notification *n = g_queue_pop_tail(history);
+        n->redisplayed = true;
+        g_queue_insert_sorted(waiting, n, notification_cmp_data, NULL);
+}
+
+/* see queues.h */
 void queues_history_push(struct notification *n)
 {
         if (!n->history_ignore) {
@@ -469,7 +480,7 @@ void queues_update(struct dunst_status status)
 }
 
 /* see queues.h */
-gint64 queues_get_next_datachange(gint64 time)
+gint64 queues_get_next_datachange(gint64 time, struct dunst_status status)
 {
         gint64 sleep = G_MAXINT64;
 
@@ -497,6 +508,10 @@ gint64 queues_get_next_datachange(gint64 time)
                 }
         }
 
+        if (!status.idle && settings.idle_threshold != 0 && settings.repopup_on_idle) {
+            sleep = MIN(sleep, settings.idle_threshold - x_get_idle_time() * 1000);
+        }
+
         return sleep != G_MAXINT64 ? sleep : -1;
 }
 
@@ -521,4 +536,10 @@ void queues_teardown(void)
         g_queue_free_full(waiting, teardown_notification);
         waiting = NULL;
 }
+
+/* see queues.h */
+GQueue* get_history_queue(void) {
+    return history;
+}
+
 /* vim: set tabstop=8 shiftwidth=8 expandtab textwidth=0: */

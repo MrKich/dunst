@@ -174,6 +174,12 @@ void load_settings(char *cmdline_config_path)
                 ""
         );
 
+        settings.repopup_on_idle = option_get_bool(
+                "experimental",
+                "repopup_on_idle", NULL, false,
+                ""
+        );
+
         settings.force_xinerama = option_get_bool(
                 "global",
                 "force_xinerama", "-force_xinerama", false,
